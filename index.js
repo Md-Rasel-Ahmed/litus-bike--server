@@ -59,7 +59,15 @@ async function run() {
         options
       );
       res.send(result);
-      console.log(result);
+    });
+    // Delete a single products
+    app.delete("/products/:id", async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await productCollection.deleteOne(query);
+      if (result.deletedCount === 1) {
+        res.send(result);
+      }
     });
   } finally {
     // await client.close();
