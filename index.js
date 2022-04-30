@@ -60,8 +60,15 @@ async function run() {
       );
       res.send(result);
     });
+    // Add product in database
+    app.post("/product", async (req, res) => {
+      const newProduct = req.body;
+      console.log(newProduct);
+      const result = await productCollection.insertOne(newProduct);
+      res.send(result);
+    });
     // Delete a single products
-    app.delete("/products/:id", async (req, res) => {
+    app.delete("/product/:id", async (req, res) => {
       const { id } = req.params;
       const query = { _id: ObjectId(id) };
       const result = await productCollection.deleteOne(query);
