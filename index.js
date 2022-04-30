@@ -14,8 +14,7 @@ app.get("/", (req, res) => {
   res.send("Api done");
 });
 
-const uri =
-  "mongodb+srv://mongodbUser:hSMFLPo6zrAqzr8w@cluster0.6plls.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.6plls.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -67,7 +66,7 @@ async function run() {
       const result = await productCollection.insertOne(newProduct);
       res.send(result);
     });
-    // Delete a single products
+    // Delete a single productsh
     app.delete("/product/:id", async (req, res) => {
       const { id } = req.params;
       const query = { _id: ObjectId(id) };
