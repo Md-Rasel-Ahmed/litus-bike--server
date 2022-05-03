@@ -1,4 +1,5 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const cors = require("cors");
@@ -26,13 +27,29 @@ async function run() {
   try {
     await client.connect();
     const productCollection = client.db("storedBike").collection("product");
-    // let obj = { name: "rasel", age: 21 };
-    // const result = await productCollection.insertOne(obj);
+
     app.get("/product", async (req, res) => {
+      const pages = parseInt(req.query.page);
+      console.log(pages);
       const query = {};
       const cursor = productCollection.find(query);
-      const result = await cursor.toArray();
-      res.send(result);
+      if (pages === 1) {
+        let result = await cursor.limit(2).toArray();
+        res.send(result);
+      }
+      if (pages > 1) {
+        let result = await cursor.skip(pages).limit(2).toArray();
+        res.send(result);
+      }
+    });
+    // jwt auth
+    app.post("/login", async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const accessToken = jwt.sign(user, process.env.USER_JWT_TOKEN, {
+        expiresIn: "1d",
+      });
+      res.send(accessToken);
     });
     // find product
     app.get("/product/:id", async (req, res) => {
@@ -75,6 +92,13 @@ async function run() {
       if (result.deletedCount === 1) {
         res.send(result);
       }
+    });
+    // Product count for pagination
+    app.get("/productCount", async (req, res) => {
+      const query = {};
+      const cursor = productCollection.find(query);
+      const count = await cursor.count();
+      res.send({ count });
     });
   } finally {
     // await client.close();
