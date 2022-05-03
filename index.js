@@ -42,6 +42,13 @@ async function run() {
         res.send(result);
       }
     });
+    // Customer added all items Api
+    app.post("/useritem", async (req, res) => {
+      const newItem = req.body;
+      console.log(newProduct);
+      const result = await productCollection.insertOne(newItem);
+      res.send(result);
+    });
     // jwt auth
     app.post("/login", async (req, res) => {
       const user = req.body;
