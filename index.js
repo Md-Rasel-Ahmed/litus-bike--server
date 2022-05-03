@@ -27,7 +27,15 @@ async function run() {
   try {
     await client.connect();
     const productCollection = client.db("storedBike").collection("product");
+    // get all product from database
+    app.get("/product", async (req, res) => {
+      const query = {};
+      const cursor = productCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
+    // getting product for pagination
     app.get("/product", async (req, res) => {
       const pages = parseInt(req.query.page);
       console.log(pages);
@@ -42,12 +50,12 @@ async function run() {
         res.send(result);
       }
     });
-    // Customer added all items Api
-    app.post("/useritem", async (req, res) => {
-      const newItem = req.body;
-      console.log(newProduct);
-      const result = await productCollection.insertOne(newItem);
-      res.send(result);
+    // Product count for pagination
+    app.get("/productCount", async (req, res) => {
+      const query = {};
+      const cursor = productCollection.find(query);
+      const count = await cursor.count();
+      res.send({ count });
     });
     // jwt auth
     app.post("/login", async (req, res) => {
@@ -99,13 +107,6 @@ async function run() {
       if (result.deletedCount === 1) {
         res.send(result);
       }
-    });
-    // Product count for pagination
-    app.get("/productCount", async (req, res) => {
-      const query = {};
-      const cursor = productCollection.find(query);
-      const count = await cursor.count();
-      res.send({ count });
     });
   } finally {
     // await client.close();
