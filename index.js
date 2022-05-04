@@ -48,27 +48,23 @@ async function run() {
       const query = {};
       const cursor = productCollection.find(query);
       const result = await cursor.toArray();
-      const cursor1 = userItemsCollection.find(query);
-      const result1 = await cursor1.toArray();
-      const allproducts = [...result, ...result1];
-      // console.log([...result, ...result1]);
       res.send(result);
     });
 
     // getting product for pagination
-    app.get("/product", async (req, res) => {
-      const pages = parseInt(req.query.page);
-      const query = {};
-      const cursor = productCollection.find(query);
-      if (pages === 1) {
-        let result = await cursor.limit(2).toArray();
-        res.send(result);
-      }
-      if (pages > 1) {
-        let result = await cursor.skip(pages).limit(2).toArray();
-        res.send(result);
-      }
-    });
+    // app.get("/product", async (req, res) => {
+    //   const pages = parseInt(req.query.page);
+    //   const query = {};
+    //   const cursor = productCollection.find(query);
+    //   if (pages === 1) {
+    //     let result = await cursor.limit(2).toArray();
+    //     res.send(result);
+    //   }
+    //   if (pages > 1) {
+    //     let result = await cursor.skip(pages).limit(2).toArray();
+    //     res.send(result);
+    //   }
+    // });
     // Product count for pagination
     app.get("/productCount", async (req, res) => {
       const query = {};
