@@ -52,7 +52,7 @@ async function run() {
       const result1 = await cursor1.toArray();
       const allproducts = [...result, ...result1];
       // console.log([...result, ...result1]);
-      res.send(allproducts);
+      res.send(result);
     });
 
     // getting product for pagination
@@ -104,7 +104,7 @@ async function run() {
       res.send(result);
     });
 
-    // Add product in database
+    // new item added api
     app.post("/product", async (req, res) => {
       const newProduct = req.body;
       const result = await productCollection.insertOne(newProduct);
