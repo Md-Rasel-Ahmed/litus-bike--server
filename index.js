@@ -42,13 +42,17 @@ async function run() {
     const productCollection = client.db("storedBike").collection("product");
     const userItemsCollection = client.db("storedBike").collection("userItem");
     // const arr=[...productCollection,...userItemsCollection];
-    console.log(productCollection);
+    // console.log(productCollection);
     // get all product from database
     app.get("/product", async (req, res) => {
       const query = {};
       const cursor = productCollection.find(query);
       const result = await cursor.toArray();
-      res.send(result);
+      const cursor1 = userItemsCollection.find(query);
+      const result1 = await cursor1.toArray();
+      const allproducts = [...result, ...result1];
+      // console.log([...result, ...result1]);
+      res.send(allproducts);
     });
 
     // getting product for pagination
