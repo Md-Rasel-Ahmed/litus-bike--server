@@ -11,6 +11,19 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Verifining jwt token
+const verifingToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "unAuthorize access" });
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.USER_JWT_TOKEN, (err, decoded) => {
+    if (err) return res.status(403).send({ message: "forbidden access" });
+    req.decoded = decoded;
+    next();
+  });
+};
 // Create a get api
 app.get("/", (req, res) => {
   res.send("Api done");
@@ -27,6 +40,9 @@ async function run() {
   try {
     await client.connect();
     const productCollection = client.db("storedBike").collection("product");
+    const userItemsCollection = client.db("storedBike").collection("userItem");
+    // const arr=[...productCollection,...userItemsCollection];
+    console.log(productCollection);
     // get all product from database
     app.get("/product", async (req, res) => {
       const query = {};
@@ -38,7 +54,6 @@ async function run() {
     // getting product for pagination
     app.get("/product", async (req, res) => {
       const pages = parseInt(req.query.page);
-      console.log(pages);
       const query = {};
       const cursor = productCollection.find(query);
       if (pages === 1) {
@@ -57,15 +72,7 @@ async function run() {
       const count = await cursor.count();
       res.send({ count });
     });
-    // jwt auth
-    app.post("/login", async (req, res) => {
-      const user = req.body;
-      console.log(user);
-      const accessToken = jwt.sign(user, process.env.USER_JWT_TOKEN, {
-        expiresIn: "1d",
-      });
-      res.send(accessToken);
-    });
+
     // find product
     app.get("/product/:id", async (req, res) => {
       const { id } = req.params;
@@ -92,14 +99,15 @@ async function run() {
       );
       res.send(result);
     });
+
     // Add product in database
     app.post("/product", async (req, res) => {
       const newProduct = req.body;
-      console.log(newProduct);
       const result = await productCollection.insertOne(newProduct);
       res.send(result);
     });
-    // Delete a single productsh
+
+    // Delete a single products
     app.delete("/product/:id", async (req, res) => {
       const { id } = req.params;
       const query = { _id: ObjectId(id) };
@@ -107,6 +115,33 @@ async function run() {
       if (result.deletedCount === 1) {
         res.send(result);
       }
+    });
+
+    // user added product Api
+    app.post("/userItem", async (req, res) => {
+      const newItem = req.body;
+      const result = await userItemsCollection.insertOne(newItem);
+      res.send(result);
+    });
+    // user all items get
+    app.get("/userItem", verifingToken, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      const email = req.query.email;
+      if (decodedEmail === email) {
+        const query = { email };
+        const cursor = userItemsCollection.find(query);
+        const result = await cursor.toArray();
+        res.send(result);
+      }
+    });
+    // jwt auth
+    app.post("/login", async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const accessToken = jwt.sign(user, process.env.USER_JWT_TOKEN, {
+        expiresIn: "1d",
+      });
+      res.send({ accessToken });
     });
   } finally {
     // await client.close();
