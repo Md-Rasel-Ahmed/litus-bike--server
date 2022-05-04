@@ -138,6 +138,22 @@ async function run() {
         res.send(result);
       }
     });
+    // find user product product
+    app.get("/userItem/:id", async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await userItemsCollection.findOne(query);
+      res.send(result);
+    });
+    // Delete user single products
+    app.delete("/userItem/:id", async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: ObjectId(id) };
+      const result = await userItemsCollection.deleteOne(query);
+      if (result.deletedCount === 1) {
+        res.send(result);
+      }
+    });
     // jwt auth
     app.post("/login", async (req, res) => {
       const user = req.body;
