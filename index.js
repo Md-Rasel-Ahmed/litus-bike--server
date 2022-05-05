@@ -45,6 +45,13 @@ async function run() {
     // console.log(productCollection);
     // get all product from database
     app.get("/product", async (req, res) => {
+      const query = {};
+      const cursor = productCollection.find(query);
+      let result = await cursor.toArray();
+      res.send(result);
+    });
+    // manageItem api for manage product paginaton
+    app.get("/manageItem", async (req, res) => {
       const pages = parseInt(req.query.page);
       const query = {};
       const cursor = productCollection.find(query);
@@ -61,29 +68,13 @@ async function run() {
       res.send(result);
     });
 
-    // getting product for pagination
-    // app.get("/product", async (req, res) => {
-    //   const pages = parseInt(req.query.page);
-    //   const query = {};
-    //   const cursor = productCollection.find(query);
-    //   if (pages === 1) {
-    //     let result = await cursor.limit(2).toArray();
-    //     res.send(result);
-    //   }
-    //   if (pages > 1) {
-    //     let result = await cursor.skip(pages).limit(2).toArray();
-    //     res.send(result);
-    //   }
-    // });
     // Product count for pagination
     app.get("/productCount", async (req, res) => {
-      const query = {};
-      const cursor = productCollection.find(query);
-      const count = await cursor.count();
+      const count = await productCollection.estimatedDocumentCount();
       res.send({ count });
     });
 
-    // find product
+    // find a single product by id
     app.get("/product/:id", async (req, res) => {
       const { id } = req.params;
       const query = { _id: ObjectId(id) };
@@ -133,7 +124,7 @@ async function run() {
       const result = await userItemsCollection.insertOne(newItem);
       res.send(result);
     });
-    // user all items get
+    // user all items getting api
     app.get("/userItem", verifingToken, async (req, res) => {
       const decodedEmail = req.decoded.email;
       const email = req.query.email;
@@ -144,7 +135,7 @@ async function run() {
         res.send(result);
       }
     });
-    // find user product product
+    // find user product
     app.get("/userItem/:id", async (req, res) => {
       const { id } = req.params;
       const query = { _id: ObjectId(id) };
