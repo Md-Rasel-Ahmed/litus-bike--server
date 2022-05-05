@@ -61,8 +61,8 @@ async function run() {
       }
       if (pages > 0) {
         result = await cursor
-          .skip(pages * 2)
-          .limit(2)
+          .skip(pages * 5)
+          .limit(5)
           .toArray();
       }
       res.send(result);
