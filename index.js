@@ -45,9 +45,19 @@ async function run() {
     // console.log(productCollection);
     // get all product from database
     app.get("/product", async (req, res) => {
+      const pages = parseInt(req.query.page);
       const query = {};
       const cursor = productCollection.find(query);
-      const result = await cursor.toArray();
+      let result;
+      if (pages === 0) {
+        result = await cursor.limit(2).toArray();
+      }
+      if (pages > 0) {
+        result = await cursor
+          .skip(pages * 2)
+          .limit(2)
+          .toArray();
+      }
       res.send(result);
     });
 
