@@ -57,7 +57,7 @@ async function run() {
       const cursor = productCollection.find(query);
       let result;
       if (pages === 0) {
-        result = await cursor.limit(2).toArray();
+        result = await cursor.limit(5).toArray();
       }
       if (pages > 0) {
         result = await cursor
