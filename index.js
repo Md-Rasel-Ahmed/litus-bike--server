@@ -41,6 +41,12 @@ async function run() {
     await client.connect();
     const productCollection = client.db("storedBike").collection("product");
     const userItemsCollection = client.db("storedBike").collection("userItem");
+    const galleryItemsCollection = client
+      .db("storedBike")
+      .collection("galleryItem");
+    const userLikesItemsCollection = client
+      .db("storedBike")
+      .collection("UserLikeItems");
     // const arr=[...productCollection,...userItemsCollection];
     // console.log(productCollection);
     // get all product from database
@@ -159,6 +165,30 @@ async function run() {
         expiresIn: "1d",
       });
       res.send({ accessToken });
+    });
+
+    // Gallery api
+    app.get("/gallery", async (req, res) => {
+      const query = {};
+      const cursor = galleryItemsCollection.find(query);
+      let result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // get user likes api
+    app.get("/userLikeItems", async (req, res) => {
+      const query = {};
+      const cursor = userLikesItemsCollection.find(query);
+      let result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // new item added api
+    app.post("/userLikeItems", async (req, res) => {
+      const newProduct = req.body;
+      console.log(newProduct);
+      const result = await userLikesItemsCollection.insertOne(newProduct);
+      res.send(result);
     });
   } finally {
     // await client.close();
